@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient, HttpParams } from "@angular/common/http";
-import { Observable } from "rxjs";
+import { Observable, of } from "rxjs";
 import { map } from "rxjs/operators";
 import { ArticleListConfig } from "../models/article-list-config.model";
 import { Article } from "../models/article.model";
@@ -9,11 +9,52 @@ import { Article } from "../models/article.model";
 export class ArticlesService {
   constructor(private readonly http: HttpClient) {}
 
+  private mockArticles: Article[] = [
+    {
+      slug: "mock-article-1",
+      title: "Mock Article 1",
+      description: "description 1",
+      body: "Body 1",
+      tagList: ["mock", "article"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      favorited: false,
+      favoritesCount: 0,
+      author: {
+        username: "mockuser",
+        bio: "Mock bio",
+        image: "mock-image-url",
+        following: false,
+      },
+    },
+    {
+      slug: "mock-article-2",
+      title: "Mock Article 2",
+      description: "description 2",
+      body: "article 2",
+      tagList: ["mock", "data"],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      favorited: true,
+      favoritesCount: 10,
+      author: {
+        username: "mockuser2",
+        bio: "Another mock bio",
+        image: "mock-image-url-2",
+        following: true,
+      },
+    },
+  ];
   query(
     config: ArticleListConfig,
   ): Observable<{ articles: Article[]; articlesCount: number }> {
     // Convert any filters over to Angular's URLSearchParams
     let params = new HttpParams();
+
+    return of({
+      articles: this.mockArticles,
+      articlesCount: this.mockArticles.length,
+    });
 
     Object.keys(config.filters).forEach((key) => {
       // @ts-ignore
@@ -27,10 +68,10 @@ export class ArticlesService {
   }
 
   get(slug: string): Observable<Article> {
-    return this.http
-      .get<{ article: Article }>(`/articles/${slug}`)
-      .pipe(map((data) => data.article));
+    const article = this.mockArticles.find((article) => article.slug === slug);
+    return of(article!);
   }
+
 
   delete(slug: string): Observable<void> {
     return this.http.delete<void>(`/articles/${slug}`);

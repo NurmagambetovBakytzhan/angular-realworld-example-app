@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable, BehaviorSubject } from "rxjs";
+import { Observable, BehaviorSubject, of } from "rxjs";
 
 import { JwtService } from "./jwt.service";
 import { map, distinctUntilChanged, tap, shareReplay } from "rxjs/operators";
@@ -26,9 +26,15 @@ export class UserService {
     email: string;
     password: string;
   }): Observable<{ user: User }> {
-    return this.http
-      .post<{ user: User }>("/users/login", { user: credentials })
-      .pipe(tap(({ user }) => this.setAuth(user)));
+    const mockUser: User = {
+      username: "mockuser",
+      email: credentials.email,
+      token: "mock-token",
+      bio: "Mock bio",
+      image: "mock-image-url",
+    };
+    this.setAuth(mockUser);
+    return of({ user: mockUser });
   }
 
   register(credentials: {
